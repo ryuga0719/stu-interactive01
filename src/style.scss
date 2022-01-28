@@ -1,14 +1,22 @@
 /** @format */
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@use "./reboot";
+.container {
+  width: 100vw;
+  height: 100vh;
+  background: #333;
+  position: relative;
+  overflow: hidden;
 }
 
-h1 {
-  color: red;
+.child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: #0091ea;
+  transition: 0.5s;
+  transform: translate(0, 0);
+  transition-timing-function: ease-out;
 }
