@@ -14,8 +14,10 @@
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: #0091ea;
+  background: rgba(red, 0.6);
   transition: 0.5s;
   transform: translate(0, 0);
   transition-timing-function: ease-out;
+  min-height: 50px;
+  min-width: 50px;
 }
