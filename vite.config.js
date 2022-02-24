@@ -13,6 +13,7 @@ module.exports = {
     assetsDir: "assets",
     rollupOptions: {
       output: {
+        // ファイルの拡張子と同じディレクトリを作成してbuildする
         assetFileNames: (assetInfo) => {
           let extType = assetInfo.name.split(".").at(1);
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {

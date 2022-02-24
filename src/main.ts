@@ -1,44 +1,70 @@
+import { calculateEuclidDistance, calculateAcceleration } from "./modules/Math";
+import { Position } from "./models/interface";
 
-interface Position {
-  x: number;
-  y: number
-}
-
-// Follow class
+/**
+ * Follow class
+ */
 class Follow {
-  // mouse position
-  public mouseX = 0;
-  public mouseY = 0;
+  /**
+   * マウスのポジション
+   */
+  public mouse: Position = {
+    x: 0,
+    y: 0,
+  };
 
-  // 追従要素の設定
-  public child = document.querySelector<HTMLElement>('.child');
-  public radius = 10; // 半径
-  public diameter = this.radius * 2; // 直径
+  /**
+   * 追従要素の設定
+   */
+  public child = <HTMLElement>document.querySelector(".child");
+  public childStyle = window.getComputedStyle(this.child);
+  public diameter; // 直径
+  public radius; // 半径
 
-
+  /**
+   * 微小時間
+   */
   public timer = 0;
-  // public now = 0;
+
+  /**
+   * 微笑区間座標（現在）
+   */
   public now: Position = {
     x: 0,
-    y: 0
-  }
-  // public last = 0;
-  public last: Position = {
+    y: 0,
+  };
+
+  /**
+   * 微笑区間座標（過去）
+   */
+  public prev: Position = {
     x: 0,
-    y: 0
-  }
-  public offset = 0;
+    y: 0,
+  };
+
+  /**
+   * 微小区間
+   */
+  public distance = 0;
+
+  /**
+   * 加速度
+   */
   public acceleration = 0;
+
+  /**
+   * 拡大倍率
+   */
+  public ratio = 15;
 
   // constructor
   constructor() {
-    // 追従要素の初期化
-    this.child!.style.width = this.radius * 2 + "px";
-    this.child!.style.height = this.radius * 2 + "px";
+    // 追従要素の初期設定
+    this.diameter = Number(this.childStyle.getPropertyValue("width"));
+    this.radius = this.diameter / 2;
 
     this.bind();
   }
-
 
   /**
    * mouseHandler
@@ -46,12 +72,11 @@ class Follow {
    */
   public mouseHandler(e: MouseEvent): void {
     // マウス座標の取得と表示
-    this.mouseX = e.clientX;
-    this.mouseY = e.clientY;
+    this.mouse.x = e.clientX;
+    this.mouse.y = e.clientY;
 
-
-
-    this.updateParam(this.mouseX, this.mouseY);
+    // パラメータのアップデート
+    this.updateParam(this.mouse.x, this.mouse.y);
   }
 
   /**
@@ -61,54 +86,27 @@ class Follow {
    * @param {number} mouseY - mouse y position
    */
   public updateParam(mouseX: number, mouseY: number): void {
+    // 座標と時間のアップデート
     this.timer++;
-    this.last.x = this.now.x;
-    this.last.y = this.now.y;
+    this.prev.x = this.now.x;
+    this.prev.y = this.now.y;
     this.now.x = mouseX;
     this.now.y = mouseY;
-    this.offset = this.calculateEuclidDistance(this.last.x, this.last.y, this.now.x, this.now.y);
-    this.acceleration = this.offset / this.timer;
-    this.acceleration = this.orgRound(this.acceleration, 10);
 
-    console.log("🍓", this.acceleration);
+    // 微小区間の計算
+    this.distance = calculateEuclidDistance(this.prev.x, this.prev.y, this.now.x, this.now.y);
 
-    this.radius = this.acceleration * 25;
+    // 加速度計算
+    this.acceleration = calculateAcceleration(this.distance, this.timer);
+
+    // 追従要素のアップデート
+    this.radius = this.acceleration * this.ratio;
     this.diameter = this.radius * 2;
-    this.child!.style.width = this.radius + "px";
-    this.child!.style.height = this.radius + "px";
 
-    this.child!.style.transform = 'translate(' + (this.mouseX - this.radius) + 'px, ' + (this.mouseY - this.radius) + 'px)';
-  }
+    this.child!.style.width = this.diameter + "px";
+    this.child!.style.height = this.diameter + "px";
 
-  /**
-   * calculateEuclidDistance
-   * 2点間のユークリッド距離を計算
-   * @param {number} x1 - ポイント1のマウスのx座標
-   * @param {number} y1 - ポイント1のマウスのy座標
-   * @param {number} x2 - ポイント2のマウスのx座標
-   * @param {number} y2 - ポイント2のマウスのy座標
-   * @returns {number} 引数に入れた2点間のユークリッド距離
-   *
-   */
-  public calculateEuclidDistance(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ): number {
-    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-  }
-
-  /**
-   * orgRound
-   * valueをbaseに入れた値で四捨五入する
-   * @param {number} value - 四捨五入する数値
-   * @param {number} base - 四捨五入する桁数(小数第一位なら10を代入)
-   * @returns {number} 桁整理した数字
-   *
-   */
-  public orgRound(value: number, base: number): number {
-    return Math.round(value * base) / base;
+    this.child!.style.transform = "translate(" + (this.mouse.x - this.radius) + "px, " + (this.mouse.y - this.radius) + "px)";
   }
 
   /**
@@ -116,7 +114,7 @@ class Follow {
    * 各パラメータのリセット
    */
   resetParam(): void {
-    this.offset = 0;
+    this.distance = 0;
     this.acceleration = 0;
     this.timer = 0;
   }
@@ -125,13 +123,13 @@ class Follow {
    * bind
    */
   public bind(): void {
-    window.addEventListener('mousemove', this.mouseHandler.bind(this))
+    window.addEventListener("mousemove", this.mouseHandler.bind(this));
   }
-
 }
 
 const follow = new Follow();
 
+// 距離計算の時間調整
 setInterval(() => {
   follow.resetParam();
-}, 5)
+}, 50);
