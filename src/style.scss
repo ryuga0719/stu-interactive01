@@ -2,7 +2,7 @@
 .container {
   width: 100vw;
   height: 100vh;
-  background: #333;
+  background: #000;
   position: relative;
   overflow: hidden;
 }
@@ -14,10 +14,11 @@
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(red, 0.6);
+  border: 3px solid green;
+  background: transparent;
   transition: 0.5s;
   transform: translate(0, 0);
   transition-timing-function: ease-out;
-  min-height: 25px;
-  min-width: 25px;
+  min-height: 15px;
+  min-width: 15px;
 }
